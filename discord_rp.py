@@ -4,44 +4,58 @@ import pygetwindow as gw
 import os
 from pypresence import Presence
 
-# Configura el ID de tu aplicación en Discord Developer Portal
 CLIENT_ID = "1351548975567736923"
 rpc = Presence(CLIENT_ID)
 rpc.connect()
 
-# Nombre del proceso de Packet Tracer en Windows
 PACKET_TRACER_PROCESS = "PacketTracer.exe"
+start_time = None
 
 def is_packet_tracer_running():
-    """Verifica si Packet Tracer está en ejecución."""
     for process in psutil.process_iter(['name']):
         if process.info['name'] == PACKET_TRACER_PROCESS:
             return True
     return False
 
-def get_packet_tracer_file_name():
-    """Obtiene el nombre del archivo abierto en Packet Tracer sin la ruta."""
+def get_packet_tracer_window():
+    """Devuelve la ventana activa de Packet Tracer si existe."""
     for window in gw.getWindowsWithTitle("Packet Tracer"):
-        if window.title:
-            title = window.title.replace(" - Cisco Packet Tracer", "").strip()
-            file_name = os.path.basename(title)  # Extrae el nombre del archivo del titulo de la ventana
-            return file_name
-    return "Proyecto desconocido"
+        return window
+    return None
+
+def get_packet_tracer_file_name(title):
+    """Extrae el nombre del archivo desde el título de la ventana."""
+    title = title.replace(" - Cisco Packet Tracer", "").strip()
+    return os.path.basename(title)
 
 while True:
     if is_packet_tracer_running():
-        project_name = get_packet_tracer_file_name()
-        print(f"Packet Tracer en ejecución: {project_name}")
+        if start_time is None:
+            start_time = time.time()
 
-        rpc.update(
-            state=f"Editando {project_name}",
-            details="Tracing Packets",
-            large_image="packet_tracer",
-            small_image="cisco",
-            start=time.time()
-        )
+        window = get_packet_tracer_window()
+        if window:
+            project_name = get_packet_tracer_file_name(window.title)
+            print(f"Minimized: {window.isMinimized}, Active: {window.isActive}")
+            
+            # Solo considera "En pausa" si está minimizado
+            is_minimized = window.isMinimized
+
+            status = "Descansando :_v" if is_minimized else f"Editando {project_name}"
+            print(f"Packet Tracer en ejecución: {status}")
+
+            rpc.update(
+                state=status,
+                details="Tracing Packets",
+                large_image="packet_tracer",
+                small_image="cisco",
+                start=start_time
+            )
+        else:
+            print("No se encontró la ventana de Packet Tracer.")
     else:
         print("Packet Tracer no está en ejecución.")
         rpc.clear()
+        start_time = None
 
-    time.sleep(15)  # Discord limita las actualizaciones a cada 15 segundos
+    time.sleep(15)
