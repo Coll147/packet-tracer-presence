@@ -1,0 +1,31 @@
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+
+# Entornos virtuales
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+# Archivos de PyInstaller
+build/
+*.spec
+
+# Configuración del sistema/IDE
+.vscode/
+.idea/
+*.iml
+
+# Archivos temporales
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
