@@ -1,3 +1,7 @@
+### :warning: AI-Slop Alert
+This thing was made almost entirely with AI without using my brain
+
+
 # packet-tracer-presence
 A small script made with chatgpt to show off using Cisco Packet Tracer on Discord
 
